@@ -78,13 +78,7 @@ dps_range = [250, 500, 1000, 2000]
 
 class FXAS21002(I2C):
     def __init__(self, dps=None, bw=100, bus=1, verbose=False):
-        """
-        Args:
-            dps: 250, 500, 1000, or 2000 dps
-            bw: 25, 50, 100, 200, 400, 800 Hz
-            bus: i2c bus to use, default is 1
-            verbose: print out some info at start
-        """
+    
         I2C.__init__(self, address=FXAS21002C_ADDRESS, bus=bus)
 
         if self.read8(GYRO_REGISTER_WHO_AM_I) != FXAS21002C_ID:
@@ -110,30 +104,7 @@ class FXAS21002(I2C):
         else:
             raise Exception('FXAS21002C: invalid gyro range: {}'.format(dps))
 
-        """
-        Set CTRL_REG1 (0x13)
-        ====================================================================
-        BIT  Symbol    Description                                   Default
-        ---  ------    --------------------------------------------- -------
-        6    RESET     Reset device on 1                                   0
-        5    ST        Self test enabled on 1                              0
-        4:2  DR        Output data rate                                  000
-                            000 = 800 Hz
-                            001 = 400 Hz
-                            010 = 200 Hz
-                            011 = 100 Hz
-                            100 = 50 Hz
-                            101 = 25 Hz
-                            110 = 12.5 Hz
-                            111 = 12.5 Hz
-        1    ACTIVE    Standby(0)/Active(1)                                0
-        0    READY     Standby(0)/Ready(1)                                 0
-        """
-        # Reset then switch to active mode with 100Hz output
-        # self.write8(GYRO_REGISTER_CTRL_REG1, 0x00)  # don't need this?
-        # self.write8(GYRO_REGISTER_CTRL_REG1, (1 << 6))  # set bit 6, reset bit
-        # self.reset()
-        # value = GYRO_BW_100 | GYRO_ACTIVE
+      
         if bw in bandwidths:
             value = bwd[bw] | GYRO_ACTIVE
             self.write8(GYRO_REGISTER_CTRL_REG1, value)  # set 100 Hz Active=true
@@ -151,11 +122,6 @@ class FXAS21002(I2C):
     def setActive(self):
         reg = self.read8(GYRO_REGISTER_CTRL_REG1)
         self.write8(GYRO_REGISTER_CTRL_REG1, reg | 2)
-
-    # FIXME: doesn't work!!
-    # def reset(self):
-    #     self.write8(GYRO_REGISTER_CTRL_REG1, (1 << 6))
-    #     time.sleep(0.1)
 
     def temperature(self):
         """Return gyro temperature in C, ONLY works in ACTIVE mode"""
