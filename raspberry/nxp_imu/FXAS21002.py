@@ -1,6 +1,3 @@
-# Gyro
-# MIT License
-# Kevin Walchko
 
 from __future__ import print_function
 from __future__ import division
